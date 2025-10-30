@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バドミントン大会 出場者登録システム - Phase 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .form-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #dc3545;
+            margin-left: 4px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* 種目別出場数を縦1列で表示 */
+        .category-counters-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 600px;
+        }
+
+        .category-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .category-counter label {
+            flex: 1;
+            margin: 0;
+            font-weight: 600;
+            font-size: 15px;
+            white-space: nowrap; /* 改行防止 */
+        }
+
+        .category-counter select {
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .notice-text {
+            font-size: 12px;
+            color: #856404;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 5px;
+            border-left: 3px solid #ffc107;
+        }
+
+        .entries-container {
+            margin-top: 20px;
+        }
+
+        .entry-group {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .entry-header {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .pair-section {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .pair-section h5 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-small {
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-restore {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-restore:hover {
+            background: #218838;
+        }
+
+        .btn-permanent-delete {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .btn-permanent-delete:hover {
+            background: #5a6268;
+        }
+
+        /* 統計カードを3列表示（ダブルス組数を削除） */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 48px;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background: #e9ecef;
+        }
+
+        tbody tr.deleted {
+            background: #f8d7da;
+            opacity: 0.6;
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .alert.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .alert-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .alert-error {
+            background: #dc3545;
+            color: white;
+        }
+
+        .alert-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .admin-panel {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-counters-container {
+                max-width: 100%;
+            }
+        }
+
+        /* 種目別詳細集計 */
+        .category-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .category-detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            text-align: center;
+        }
+
+        .category-detail-item .label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .category-detail-item .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .category-detail-item .unit {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* 学校別集計テーブル */
+        .school-stats-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .school-stats-table th,
+        .school-stats-table td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .school-stats-table th:first-child,
+        .school-stats-table td:first-child {
+            text-align: left;
+        }
+
+        /* Page 1: 種目別出場数選択（横並びレイアウト） */
+        .category-counters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            max-width: 100%;
+        }
+
+        .category-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .category-counter:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-counter label {
+            flex: 1;
+            margin: 0;
+            font-weight: 600;
+            font-size: 15px;
+            white-space: nowrap;
+            color: #667eea;
+        }
+
+        .category-counter select {
+            width: 100px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="alert" id="alertMessage"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏸 バドミントン大会 出場者登録システム</h1>
+            <p>Phase 1: 出場者登録・データ管理</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(0)">📝 出場者登録</div>
+            <div class="tab" onclick="switchTab(1)">📊 登録状況</div>
+            <div class="tab" onclick="switchTab(2)">🔧 管理</div>
+        </div>
+
+        <!-- Tab 1: 出場者登録 -->
+        <div class="tab-content active">
+            <form id="entryForm" onsubmit="event.preventDefault(); submitForm();">
+                <div class="form-section">
+                    <h3>🏫 学校情報</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>学校名<span class="required">*</span></label>
+                            <input type="text" id="schoolName" name="schoolName" placeholder="例: 札幌北高等学校" required>
+                        </div>
+                        <div class="form-group">
+                            <label>住所</label>
+                            <input type="text" id="schoolAddress" name="address" placeholder="例: 札幌市北区〇〇">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>👤 代表者情報</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>代表者氏名<span class="required">*</span></label>
+                            <input type="text" id="contactName" name="representative" placeholder="例: 山田太郎" required>
+                        </div>
+                        <div class="form-group">
+                            <label>メールアドレス<span class="required">*</span></label>
+                            <input type="email" id="contactEmail" name="email" placeholder="例: yamada@school.ed.jp" required>
+                        </div>
+                        <div class="form-group">
+                            <label>電話番号</label>
+                            <input type="tel" id="contactPhone" name="phone" placeholder="例: 011-123-4567">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏆 種目別出場数</h3>
+                    <div class="notice-text">
+                        💡 ヒント：出場数を変更しても、入力済みの選手情報は自動的に保持されます
+                    </div>
+                    <!-- 縦1列で表示 -->
+                    <div class="category-counters-container">
+                        <div class="category-counter">
+                            <label>男子シングルス (BS)</label>
+                            <select id="msCount" onchange="updateEntryFields()">
+                                <option value="0">--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                        <div class="category-counter">
+                            <label>女子シングルス (GS)</label>
+                            <select id="wsCount" onchange="updateEntryFields()">
+                                <option value="0">--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                        <div class="category-counter">
+                            <label>男子ダブルス (BD)</label>
+                            <select id="mdCount" onchange="updateEntryFields()">
+                                <option value="0">--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                        <div class="category-counter">
+                            <label>女子ダブルス (GD)</label>
+                            <select id="wdCount" onchange="updateEntryFields()">
+                                <option value="0">--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>✏️ 選手情報入力</h3>
+                    <div id="entryFieldsContainer" class="entries-container"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" id="submitBtn" class="btn btn-primary">📤 登録する</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tab 2: 登録状況 -->
+        <div class="tab-content">
+            <!-- ダブルス組数カードを削除（3列表示） -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>参加学校数</h4>
+                    <div class="number" id="totalSchools">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>延べエントリー数</h4>
+                    <div class="number" id="totalPlayers">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>実エントリー数</h4>
+                    <div class="number" id="actualPlayers">0</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>📋 種目別集計</h4>
+                <div id="categoryStats"></div>
+                
+                <h4 style="margin-top: 20px;">📊 詳細集計（全8カテゴリー）</h4>
+                <div class="category-detail-grid" id="categoryDetailStats"></div>
+            </div>
+
+            <div class="info-box">
+                <h4>🏫 学校別集計</h4>
+                <div id="schoolStats"></div>
+            </div>
+
+            <div class="info-box">
+                <h4>📃 登録一覧</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>学校名</th>
+                            <th>種目</th>
+                            <th>選手名</th>
+                            <th>学年</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playerList">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #6c757d;">データがありません</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: 管理 -->
+        <div class="tab-content">
+            <div class="form-section">
+                <h3>🔐 管理者認証</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>パスワード</label>
+                        <input type="password" id="adminPassword" placeholder="管理者パスワードを入力">
+                    </div>
+                </div>
+                <button onclick="adminLogin()" class="btn btn-secondary">ログイン</button>
+            </div>
+
+            <div id="adminPanel" class="admin-panel hidden">
+                <h4>⚙️ 管理者メニュー</h4>
+                <div class="button-group">
+                    <button onclick="exportAllCSV()" class="btn btn-success btn-small">📥 全データCSV出力（自動ソート済み）</button>
+                    <button onclick="confirmClearAll()" class="btn btn-danger btn-small">🗑️ 全データクリア</button>
+                </div>
+            </div>
+
+            <div id="deletedPlayersSection" class="form-section">
+                <h3>🗑️ 削除済み選手</h3>
+                <div id="deletedPlayersList">
+                    <div style="text-align: center; color: #6c757d; padding: 20px;">削除された選手はありません</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKZJXoe4vVMjczJRB7jBDSZqxU7U3BjEcT8I2s-vkDTfXJrOZSSYr3mf7K5bJKnPan/exec';
+        let isAdminLoggedIn = false;
+
+        // ============================================
+        // タブ切り替え
+        // ============================================
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                    contents[i].classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                    contents[i].classList.remove('active');
+                }
+            });
+
+            // 登録状況タブを開いたらデータ再読み込み
+            if (index === 1) {
+                loadData();
+            }
+            // 管理タブを開いたら削除済み選手を読み込み
+            if (index === 2) {
+                if (isAdminLoggedIn) {
+                    document.getElementById('deletedPlayersSection').style.display = 'block';
+                    loadDeletedPlayers();
+                } else {
+                    document.getElementById('deletedPlayersSection').style.display = 'none';
+                }
+            }
+        }
+
+        // ============================================
+        // 選手情報入力フィールド生成（データ保持機能付き）
+        // ============================================
+        function updateEntryFields() {
+            const container = document.getElementById('entryFieldsContainer');
+            
+            // 既存データを保存
+            const savedData = saveCurrentPlayerData();
+            
+            // コンテナをクリア
+            container.innerHTML = '';
+
+            const msCount = parseInt(document.getElementById('msCount').value);
+            const wsCount = parseInt(document.getElementById('wsCount').value);
+            const mdCount = parseInt(document.getElementById('mdCount').value);
+            const wdCount = parseInt(document.getElementById('wdCount').value);
+
+            // 男子シングルス
+            for (let i = 1; i <= msCount; i++) {
+                container.appendChild(createSinglesEntry('BS', i, '男子シングルス'));
+            }
+
+            // 女子シングルス
+            for (let i = 1; i <= wsCount; i++) {
+                container.appendChild(createSinglesEntry('GS', i, '女子シングルス'));
+            }
+
+            // 男子ダブルス
+            for (let i = 1; i <= mdCount; i++) {
+                container.appendChild(createDoublesEntry('BD', i, '男子ダブルス'));
+            }
+
+            // 女子ダブルス
+            for (let i = 1; i <= wdCount; i++) {
+                container.appendChild(createDoublesEntry('GD', i, '女子ダブルス'));
+            }
+            
+            // 保存したデータを復元
+            restorePlayerData(savedData);
+        }
+
+        // 現在の選手データを保存
+        function saveCurrentPlayerData() {
+            const data = {};
+            const inputs = document.querySelectorAll('#entryFieldsContainer input, #entryFieldsContainer select');
+            
+            inputs.forEach(input => {
+                if (input.name) {
+                    data[input.name] = input.value;
+                }
+            });
+            
+            return data;
+        }
+
+        // 保存した選手データを復元
+        function restorePlayerData(savedData) {
+            if (!savedData || Object.keys(savedData).length === 0) {
+                return;
+            }
+            
+            const inputs = document.querySelectorAll('#entryFieldsContainer input, #entryFieldsContainer select');
+            
+            inputs.forEach(input => {
+                if (input.name && savedData[input.name]) {
+                    input.value = savedData[input.name];
+                }
+            });
+        }
+
+        function createSinglesEntry(categoryId, index, categoryName) {
+            const group = document.createElement('div');
+            group.className = 'entry-group';
+            group.innerHTML = `
+                <div class="entry-header">${categoryName} ${index}人目</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>氏名<span class="required">*</span></label>
+                        <input type="text" name="${categoryId}_${index}_player1_name" placeholder="例: 山田太郎" required>
+                    </div>
+                    <div class="form-group">
+                        <label>フリガナ<span class="required">*</span></label>
+                        <input type="text" name="${categoryId}_${index}_player1_kana" placeholder="例: ヤマダタロウ" required>
+                    </div>
+                    <div class="form-group">
+                        <label>学年<span class="required">*</span></label>
+                        <select name="${categoryId}_${index}_player1_grade" required>
+                            <option value="">選択してください</option>
+                            <option value="1年">1年</option>
+                            <option value="2年">2年</option>
+                            <option value="3年">3年</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            return group;
+        }
+
+        function createDoublesEntry(categoryId, index, categoryName) {
+            const group = document.createElement('div');
+            group.className = 'entry-group';
+            group.innerHTML = `
+                <div class="entry-header">${categoryName} ${index}組目</div>
+                
+                <div class="pair-section">
+                    <h5>👤 ペアA</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>氏名<span class="required">*</span></label>
+                            <input type="text" name="${categoryId}_${index}_player1_name" placeholder="例: 山田太郎" required>
+                        </div>
+                        <div class="form-group">
+                            <label>フリガナ<span class="required">*</span></label>
+                            <input type="text" name="${categoryId}_${index}_player1_kana" placeholder="例: ヤマダタロウ" required>
+                        </div>
+                        <div class="form-group">
+                            <label>学年<span class="required">*</span></label>
+                            <select name="${categoryId}_${index}_player1_grade" required>
+                                <option value="">選択してください</option>
+                                <option value="1年">1年</option>
+                                <option value="2年">2年</option>
+                                <option value="3年">3年</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pair-section">
+                    <h5>👤 ペアB</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>氏名<span class="required">*</span></label>
+                            <input type="text" name="${categoryId}_${index}_player2_name" placeholder="例: 佐藤花子" required>
+                        </div>
+                        <div class="form-group">
+                            <label>フリガナ<span class="required">*</span></label>
+                            <input type="text" name="${categoryId}_${index}_player2_kana" placeholder="例: サトウハナコ" required>
+                        </div>
+                        <div class="form-group">
+                            <label>学年<span class="required">*</span></label>
+                            <select name="${categoryId}_${index}_player2_grade" required>
+                                <option value="">選択してください</option>
+                                <option value="1年">1年</option>
+                                <option value="2年">2年</option>
+                                <option value="3年">3年</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return group;
+        }
+
+        // ============================================
+        // フォーム送信
+        // ============================================
+        async function submitForm() {
+            if (!validateForm()) return;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            showAlert('info', '送信中...お待ちください');
+
+            try {
+                const formData = new FormData(document.getElementById('entryForm'));
+                formData.set('action', 'register');
+                
+                // 種目別出場数を追加
+                formData.set('BS', document.getElementById('msCount').value);
+                formData.set('GS', document.getElementById('wsCount').value);
+                formData.set('BD', document.getElementById('mdCount').value);
+                formData.set('GD', document.getElementById('wdCount').value);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('サーバーエラー: ' + response.status);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', '✅ 登録が完了しました！');
+                    clearForm();
+                    setTimeout(() => switchTab(1), 2000);
+                } else {
+                    showAlert('error', '❌ ' + (result.message || '登録に失敗しました'));
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', '❌ エラーが発生しました: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        function validateForm() {
+            const schoolName = document.getElementById('schoolName').value.trim();
+            const contactName = document.getElementById('contactName').value.trim();
+            const contactEmail = document.getElementById('contactEmail').value.trim();
+
+            if (!schoolName) {
+                showAlert('error', '❌ 学校名を入力してください');
+                return false;
+            }
+
+            if (!contactName) {
+                showAlert('error', '❌ 代表者氏名を入力してください');
+                return false;
+            }
+
+            if (!contactEmail) {
+                showAlert('error', '❌ メールアドレスを入力してください');
+                return false;
+            }
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(contactEmail)) {
+                showAlert('error', '❌ メールアドレスの形式が正しくありません');
+                return false;
+            }
+
+            const msCount = parseInt(document.getElementById('msCount').value);
+            const wsCount = parseInt(document.getElementById('wsCount').value);
+            const mdCount = parseInt(document.getElementById('mdCount').value);
+            const wdCount = parseInt(document.getElementById('wdCount').value);
+
+            if (msCount + wsCount + mdCount + wdCount === 0) {
+                showAlert('error', '❌ 少なくとも1つの種目で出場数を選択してください');
+                return false;
+            }
+
+            return true;
+        }
+
+        function clearForm() {
+            document.getElementById('entryForm').reset();
+            document.getElementById('entryFieldsContainer').innerHTML = '';
+        }
+
+        // ============================================
+        // データ読み込み
+        // ============================================
+        async function loadData() {
+            try {
+                const response = await fetch(SCRIPT_URL + '?action=getStats', {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('データ取得エラー: ' + response.status);
+                }
+                
+                const result = await response.json();
+                
+                if ((result.success || result.status === 'success') && result.data) {
+                    updateStats(result.data);
+                } else {
+                    console.error('データ取得失敗:', result.message);
+                    updateStatsEmpty();
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                updateStatsEmpty();
+            }
+        }
+
+        function updateStatsEmpty() {
+            document.getElementById('totalPlayers').textContent = '0';
+            document.getElementById('actualPlayers').textContent = '0';
+            document.getElementById('totalSchools').textContent = '0';
+            document.getElementById('categoryStats').innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">データがありません</div>';
+            document.getElementById('categoryDetailStats').innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">データがありません</div>';
+            document.getElementById('schoolStats').innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">データがありません</div>';
+            document.getElementById('playerList').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6c757d;">データがありません</td></tr>';
+        }
+
+        function updateStats(stats) {
+            if (!stats) {
+                updateStatsEmpty();
+                return;
+            }
+
+            // 統計カード更新（ダブルス組数を削除）
+            document.getElementById('totalPlayers').textContent = stats.totalEntries || 0;
+            document.getElementById('actualPlayers').textContent = stats.totalActualPlayers || 0;
+            document.getElementById('totalSchools').textContent = stats.totalSchools || 0;
+
+            // 種目別集計
+            const categoryCount = {
+                'BS': stats.BS || 0,
+                'GS': stats.GS || 0,
+                'BD': stats.BD || 0,
+                'GD': stats.GD || 0
+            };
+            
+            const categoryNames = {
+                'BS': '男子シングルス',
+                'GS': '女子シングルス',
+                'BD': '男子ダブルス',
+                'GD': '女子ダブルス'
+            };
+
+            const categoryStatsHTML = Object.entries(categoryCount)
+                .filter(([cat, count]) => count > 0)
+                .map(([cat, count]) => `
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: white; margin: 5px 0; border-radius: 5px;">
+                    <span>${categoryNames[cat]}</span>
+                    <strong style="color: #667eea;">${count}${cat === 'BD' || cat === 'GD' ? '組' : '人'}</strong>
+                </div>
+            `).join('');
+            document.getElementById('categoryStats').innerHTML = categoryStatsHTML || '<div style="text-align: center; color: #6c757d; padding: 20px;">データなし</div>';
+
+            // 詳細集計（学年別×種目別の8カテゴリー）
+            const detailLabels = {
+                'BS_grade1': '1年生男子シングルス',
+                'BD_grade1': '1年生男子ダブルス',
+                'GS_grade1': '1年生女子シングルス',
+                'GD_grade1': '1年生女子ダブルス',
+                'BS_grade2': '2年生男子シングルス',
+                'BD_grade2': '2年生男子ダブルス',
+                'GS_grade2': '2年生女子シングルス',
+                'GD_grade2': '2年生女子ダブルス'
+            };
+
+            const orderedKeys = ['BS_grade1', 'BD_grade1', 'GS_grade1', 'GD_grade1', 'BS_grade2', 'BD_grade2', 'GS_grade2', 'GD_grade2'];
+
+            const categoryDetailHTML = orderedKeys.map(key => {
+                const count = (stats.details && stats.details[key]) || 0;
+                const isDoubles = key.startsWith('BD') || key.startsWith('GD');
+                return `
+                <div class="category-detail-item">
+                    <div class="label">${detailLabels[key]}</div>
+                    <div class="value">${count}<span class="unit">${isDoubles ? '組' : '名'}</span></div>
+                </div>
+            `}).join('');
+            document.getElementById('categoryDetailStats').innerHTML = categoryDetailHTML;
+
+            // 学校別集計
+            if (stats.schoolStats && Object.keys(stats.schoolStats).length > 0) {
+                let schoolStatsHTML = '<table class="school-stats-table"><thead><tr><th>学校名</th><th>BS</th><th>BD</th><th>GS</th><th>GD</th><th>合計</th></tr></thead><tbody>';
+                
+                Object.entries(stats.schoolStats).forEach(([schoolName, counts]) => {
+                    const total = (counts.BS || 0) + (counts.BD || 0) + (counts.GS || 0) + (counts.GD || 0);
+                    schoolStatsHTML += `
+                        <tr>
+                            <td>${schoolName}</td>
+                            <td>${counts.BS || 0}</td>
+                            <td>${counts.BD || 0}</td>
+                            <td>${counts.GS || 0}</td>
+                            <td>${counts.GD || 0}</td>
+                            <td><strong>${total}</strong></td>
+                        </tr>
+                    `;
+                });
+                
+                schoolStatsHTML += '</tbody></table>';
+                document.getElementById('schoolStats').innerHTML = schoolStatsHTML;
+            } else {
+                document.getElementById('schoolStats').innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">データなし</div>';
+            }
+
+            // 登録一覧（削除済み選手を除外）
+            if (stats.playerList && stats.playerList.length > 0) {
+                let playerListHTML = '';
+                
+                // 削除されていない選手のみ表示
+                const activePlayers = stats.playerList.filter(p => !p.deleted && !p.isDeleted);
+                
+                activePlayers.forEach(player => {
+                    const categoryNames = {
+                        'BS': '男子シングルス',
+                        'GS': '女子シングルス',
+                        'BD': '男子ダブルス',
+                        'GD': '女子ダブルス'
+                    };
+                    
+                    let playerNames = player.player1Name;
+                    let playerGrades = player.player1Grade;
+                    
+                    if (player.category === 'BD' || player.category === 'GD') {
+                        // ダブルスの場合: 「A:1年 / B:2年」形式
+                        const grade1 = player.player1Grade.replace('年', '');
+                        const grade2 = player.player2Grade.replace('年', '');
+                        playerNames = `${player.player1Name} / ${player.player2Name}`;
+                        playerGrades = `A:${grade1}年 / B:${grade2}年`;
+                    }
+                    
+                    playerListHTML += `
+                        <tr>
+                            <td>${player.schoolName}</td>
+                            <td>${categoryNames[player.category]}</td>
+                            <td>${playerNames}</td>
+                            <td>${playerGrades}</td>
+                            <td>
+                                ${isAdminLoggedIn ? `
+                                    <button class="btn-delete" onclick="deletePlayer('${player.timestamp}', '${player.schoolName}', '${player.category}', '${player.player1Name}')">削除</button>
+                                ` : '-'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                document.getElementById('playerList').innerHTML = playerListHTML;
+            } else {
+                document.getElementById('playerList').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6c757d;">データなし</td></tr>';
+            }
+        }
+
+        async function deletePlayer(timestamp, schoolName, category, player1Name) {
+            if (!isAdminLoggedIn) {
+                showAlert('error', '❌ 管理者権限が必要です');
+                return;
+            }
+
+            if (!confirm('この登録を削除しますか？\n※削除後も「元に戻す」ボタンで復元できます。')) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('timestamp', timestamp);
+                formData.append('schoolName', schoolName);
+                formData.append('category', category);
+                formData.append('player1Name', player1Name);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('削除エラー: ' + response.status);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', '✅ 削除しました');
+                    loadData();
+                    if (isAdminLoggedIn) {
+                        loadDeletedPlayers();
+                    }
+                } else {
+                    showAlert('error', '❌ ' + (result.message || '削除に失敗しました'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', '❌ エラー: ' + error.message);
+            }
+        }
+
+        async function permanentDeletePlayer(timestamp, schoolName, category, player1Name) {
+            if (!isAdminLoggedIn) {
+                showAlert('error', '❌ 管理者権限が必要です');
+                return;
+            }
+
+            if (!confirm('⚠️ 本当に完全に削除しますか？\n\nこの操作は元に戻せません。\nSpreadsheetから完全にデータが削除されます。')) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'permanentDelete');
+                formData.append('timestamp', timestamp);
+                formData.append('schoolName', schoolName);
+                formData.append('category', category);
+                formData.append('player1Name', player1Name);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('完全削除エラー: ' + response.status);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', '✅ 完全に削除しました');
+                    loadData();
+                    loadDeletedPlayers();
+                } else {
+                    showAlert('error', '❌ ' + (result.message || '完全削除に失敗しました'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', '❌ エラー: ' + error.message);
+            }
+        }
+
+        async function restorePlayer(timestamp, schoolName, category, player1Name) {
+            if (!isAdminLoggedIn) {
+                showAlert('error', '❌ 管理者権限が必要です');
+                return;
+            }
+
+            if (!confirm('この登録を復元しますか？')) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'restore');
+                formData.append('timestamp', timestamp);
+                formData.append('schoolName', schoolName);
+                formData.append('category', category);
+                formData.append('player1Name', player1Name);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('復元エラー: ' + response.status);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', '✅ 復元しました');
+                    loadData();
+                    loadDeletedPlayers();
+                } else {
+                    showAlert('error', '❌ ' + (result.message || '復元に失敗しました'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', '❌ エラー: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // 管理機能
+        // ============================================
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === 'badminton2024') {
+                isAdminLoggedIn = true;
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('deletedPlayersSection').classList.remove('hidden');
+                showAlert('success', '✅ 管理者認証成功');
+                loadData();
+                loadDeletedPlayers();
+            } else {
+                showAlert('error', '❌ パスワードが違います');
+            }
+        }
+
+        function exportAllCSV() {
+            window.open(SCRIPT_URL + '?action=exportCSV', '_blank');
+        }
+
+        async function loadDeletedPlayers() {
+            try {
+                const response = await fetch(SCRIPT_URL + '?action=getStats', {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('データ取得エラー: ' + response.status);
+                }
+                
+                const result = await response.json();
+                
+                // デバッグ情報を出力
+                console.log('=== 削除済み選手取得デバッグ情報 ===');
+                console.log('APIレスポンス全体:', result);
+                
+                if ((result.success || result.status === 'success') && result.data && result.data.playerList) {
+                    console.log('全選手リスト件数:', result.data.playerList.length);
+                    console.log('選手リストのサンプル（最初の3件）:', result.data.playerList.slice(0, 3));
+                    
+                    // 各選手の削除フラグをチェック
+                    const allPlayers = result.data.playerList;
+                    allPlayers.forEach((p, index) => {
+                        if (index < 5) { // 最初の5件をログ出力
+                            console.log(`選手${index + 1}:`, {
+                                schoolName: p.schoolName,
+                                player1Name: p.player1Name,
+                                deleted: p.deleted,
+                                isDeleted: p.isDeleted,
+                                status: p.status,
+                                allKeys: Object.keys(p)
+                            });
+                        }
+                    });
+                    
+                    const deletedPlayers = result.data.playerList.filter(p => p.deleted || p.isDeleted);
+                    console.log('削除済み選手件数:', deletedPlayers.length);
+                    console.log('削除済み選手一覧:', deletedPlayers);
+                    
+                    displayDeletedPlayers(deletedPlayers);
+                } else {
+                    console.log('データ取得失敗 or playerListなし');
+                    document.getElementById('deletedPlayersList').innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">削除された選手はありません</div>';
+                }
+            } catch (error) {
+                console.error('Error loading deleted players:', error);
+                document.getElementById('deletedPlayersList').innerHTML = '<div style="text-align: center; color: #dc3545; padding: 20px;">エラー: ' + error.message + '</div>';
+            }
+        }
+
+        function displayDeletedPlayers(players) {
+            if (!players || players.length === 0) {
+                document.getElementById('deletedPlayersList').innerHTML = '<div style="text-align: center; color: #6c757d; padding: 20px;">削除された選手はありません</div>';
+                return;
+            }
+
+            const categoryNames = {
+                'BS': '男子シングルス',
+                'GS': '女子シングルス',
+                'BD': '男子ダブルス',
+                'GD': '女子ダブルス'
+            };
+
+            let html = '<table><thead><tr><th>学校名</th><th>種目</th><th>選手名</th><th>学年</th><th>操作</th></tr></thead><tbody>';
+
+            players.forEach(player => {
+                let playerNames = player.player1Name;
+                let playerGrades = player.player1Grade;
+
+                if (player.category === 'BD' || player.category === 'GD') {
+                    const grade1 = player.player1Grade.replace('年', '');
+                    const grade2 = player.player2Grade.replace('年', '');
+                    playerNames = `${player.player1Name} / ${player.player2Name}`;
+                    playerGrades = `A:${grade1}年 / B:${grade2}年`;
+                }
+
+                html += `
+                    <tr style="background: #f8d7da; opacity: 0.8;">
+                        <td>${player.schoolName}</td>
+                        <td>${categoryNames[player.category]}</td>
+                        <td>${playerNames}</td>
+                        <td>${playerGrades}</td>
+                        <td>
+                            <button class="btn-restore" onclick="restorePlayer('${player.timestamp}', '${player.schoolName}', '${player.category}', '${player.player1Name}')">元に戻す</button>
+                            <button class="btn-permanent-delete" onclick="permanentDeletePlayer('${player.timestamp}', '${player.schoolName}', '${player.category}', '${player.player1Name}')">完全に削除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('deletedPlayersList').innerHTML = html;
+        }
+
+        async function confirmClearAll() {
+            if (!confirm('⚠️ 本当に全データをクリアしますか？\nこの操作は元に戻せません。')) return;
+            
+            const password = prompt('確認のため「DELETE_ALL_2024」と入力してください:');
+            if (password !== 'DELETE_ALL_2024') {
+                showAlert('error', '❌ 確認文字列が違います');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'clearAll');
+                formData.append('confirmPassword', password);
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('クリアエラー: ' + response.status);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', '✅ 全データをクリアしました');
+                    loadData();
+                } else {
+                    showAlert('error', '❌ ' + (result.message || 'クリアに失敗しました'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', '❌ エラー: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // ユーティリティ
+        // ============================================
+        function showAlert(type, message) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = `alert alert-${type} show`;
+            alertDiv.textContent = message;
+            
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+            }, 5000);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 初期化
+        window.addEventListener('load', function() {
+            console.log('ページ読み込み完了');
+        });
+    </script>
+</body>
+</html>
