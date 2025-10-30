@@ -58,7 +58,7 @@
             cursor: pointer;
             background: #f8f9fa;
             border: none;
-            font-size: 1.3em;
+            font-size: 1.1em;
             font-weight: 600;
             transition: all 0.3s;
             color: #495057;
@@ -112,7 +112,7 @@
         }
 
         .stat-card h3 {
-            font-size: 1.3em;
+            font-size: 1.1em;
             margin-bottom: 15px;
             opacity: 0.9;
         }
@@ -134,7 +134,7 @@
         .form-section h2 {
             color: #667eea;
             margin-bottom: 25px;
-            font-size: 1.8em;
+            font-size: 1.5em;
             display: flex;
             align-items: center;
         }
@@ -154,7 +154,7 @@
             margin-bottom: 10px;
             font-weight: 600;
             color: #495057;
-            font-size: 1.2em;
+            font-size: 1em;
         }
 
         .form-group label .required {
@@ -168,7 +168,7 @@
             padding: 15px;
             border: 2px solid #dee2e6;
             border-radius: 10px;
-            font-size: 1.1em;
+            font-size: 1em;
             transition: all 0.3s;
         }
 
@@ -189,7 +189,7 @@
         .pair-section h3 {
             color: #667eea;
             margin-bottom: 20px;
-            font-size: 1.5em;
+            font-size: 1.2em;
         }
 
         /* ボタンスタイル */
@@ -204,7 +204,7 @@
             padding: 18px 35px;
             border: none;
             border-radius: 10px;
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -235,7 +235,7 @@
             background: #dc3545;
             color: white;
             padding: 12px 24px;
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         .btn-danger:hover {
@@ -247,7 +247,7 @@
             background: #28a745;
             color: white;
             padding: 12px 24px;
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         .btn-success:hover {
@@ -259,7 +259,7 @@
             background: #ffc107;
             color: #000;
             padding: 12px 24px;
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         .btn-warning:hover {
@@ -267,7 +267,7 @@
             transform: translateY(-2px);
         }
 
-        /* テーブルスタイル - 文字サイズ拡大 */
+        /* テーブルスタイル */
         .data-section {
             margin-top: 30px;
         }
@@ -275,7 +275,7 @@
         .data-section h2 {
             color: #667eea;
             margin-bottom: 25px;
-            font-size: 1.8em;
+            font-size: 1.5em;
             display: flex;
             align-items: center;
         }
@@ -298,18 +298,16 @@
         }
 
         th {
-            padding: 20px 15px;
+            padding: 18px 15px;
             text-align: left;
             font-weight: 600;
-            font-size: 1.3em;
-            white-space: nowrap;
+            font-size: 0.95em;
         }
 
         td {
-            padding: 18px 15px;
+            padding: 15px;
             border-bottom: 1px solid #dee2e6;
-            font-size: 1.2em;
-            white-space: nowrap;
+            font-size: 0.9em;
         }
 
         tbody tr {
@@ -324,7 +322,7 @@
             text-align: center;
             padding: 60px 20px;
             color: #6c757d;
-            font-size: 1.3em;
+            font-size: 1.1em;
         }
 
         /* 管理者ログインセクション */
@@ -349,13 +347,13 @@
             padding: 15px;
             border: 2px solid #dee2e6;
             border-radius: 10px;
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         .admin-login .btn {
             width: 100%;
             padding: 18px;
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         /* 管理メニュー */
@@ -374,7 +372,7 @@
             padding: 20px 25px;
             border-radius: 10px;
             margin-bottom: 25px;
-            font-size: 1.2em;
+            font-size: 1em;
             animation: slideDown 0.3s;
         }
 
@@ -408,7 +406,7 @@
             }
 
             .tab {
-                font-size: 1.1em;
+                font-size: 0.9em;
                 padding: 15px 10px;
             }
 
@@ -416,14 +414,9 @@
                 font-size: 2.5em;
             }
 
-            th {
-                font-size: 1.1em;
-                padding: 15px 10px;
-            }
-
-            td {
-                font-size: 1em;
-                padding: 12px 10px;
+            th, td {
+                font-size: 0.85em;
+                padding: 10px 8px;
             }
 
             .button-group {
@@ -659,15 +652,18 @@
                 const response = await fetch(SCRIPT_URL + '?action=getStats');
                 const result = await response.json();
                 
+                console.log('■■ データ取得デバッグ情報 ■■');
+                console.log('API レスポンス全体:', result);
+                
                 if (result.success) {
                     document.getElementById('stat-schools').textContent = result.data.totalSchools;
                     document.getElementById('stat-current').textContent = result.data.totalEntries;
                     document.getElementById('stat-new').textContent = result.data.newEntries;
                 } else {
-                    console.error('統計データ取得失敗:', result.message);
+                    console.error('データ取得失敗:', result.message);
                 }
             } catch (error) {
-                console.error('統計データ取得エラー:', error);
+                console.error('データ取得エラー:', error);
             }
         }
 
